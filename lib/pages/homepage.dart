@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   ValueNotifier<double> _balance = ValueNotifier<double>(0);
   List<Pricemodel> balance = [];
   final homepageData= Hive.box('homepageData');
+  Timer _timer;
 
   @override
   void initState() {
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
       getbalance(balance);
       return balance;
     });
+    _initializeTimer();
     super.initState();
   }
 
@@ -191,7 +193,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   double holdings(String assetId) {
     final hivebox = Hive.box('assets');
     var holding = 0.0;
@@ -203,5 +204,9 @@ class _HomePageState extends State<HomePage> {
       }
     }
     return holding;
+  }
+
+  void _initializeTimer(){
+    _timer=Timer.periodic(const Duration(minutes: 2), (_) => loadList(true));
   }
 }
