@@ -2,11 +2,14 @@ import 'package:crypto_app/models/assetbox.dart';
 import 'package:crypto_app/models/pricemodel.dart';
 import 'package:crypto_app/pages/assetpage.dart';
 import 'package:crypto_app/service/api_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto_app/constants/constant.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
 import 'package:hive/hive.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,11 +17,63 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
   Future<List<Pricemodel>> prices;
   ValueNotifier<double> _balance = ValueNotifier<double>(0);
   List<Pricemodel> balance = [];
   final homepageData= Hive.box('homepageData');
   Timer _timer;
+
+  void notificationPermission() async{
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    print('User granted permission: ${settings.authorizationStatus}');
+  }
+
+  void initMessaging(){
+    var androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    var iosInit = IOSInitializationSettings();
+
+    var initSetting = InitializationSettings(android: androidInit, iOS: iosInit);
+
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+    flutterLocalNotificationsPlugin.initialize(initSetting);
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      showNotification();
+    });
+  }
+
+  void getToken() async{
+    print(await messaging.getToken());
+  }
+
+  void showNotification() async{
+    var androidDetails =
+    AndroidNotificationDetails('1', 'channelName', 'channel Description');
+
+    var iosDetails = IOSNotificationDetails();
+
+    var generalNotificationDetails =
+    NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+    await flutterLocalNotificationsPlugin.show(0, 'title', 'body', generalNotificationDetails,
+        payload: 'Notification');
+  }
+
 
   @override
   void initState() {
@@ -31,6 +86,10 @@ class _HomePageState extends State<HomePage> {
     });
     _initializeTimer();
     super.initState();
+
+    notificationPermission();
+    initMessaging();
+    getToken();
   }
 
   Future loadList(bool refresh) async {
@@ -52,6 +111,13 @@ class _HomePageState extends State<HomePage> {
         prices = this.prices;
       });
       return prices;
+  }
+
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
   }
 
   Future refresh() async {
@@ -209,4 +275,6 @@ class _HomePageState extends State<HomePage> {
   void _initializeTimer(){
     _timer=Timer.periodic(const Duration(minutes: 2), (_) => loadList(true));
   }
+
 }
+

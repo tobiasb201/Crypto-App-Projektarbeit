@@ -35,7 +35,10 @@ dependencies:
   hive_flutter: ^1.0.0
   intl: ^0.17.0
   flutter_command: ^2.0.0
-  sprintf: "^5.0.0"
+  firebase_core: ^1.2.0
+  firebase_messaging: ^10.0.0
+  flutter_local_notifications: ^5.0.0+4
+
 
 dev_dependencies:
   hive_generator: ^1.0.1

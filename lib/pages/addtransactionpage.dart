@@ -21,12 +21,23 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   String _amount;
   String _date;
 
+  var textController = TextEditingController();
+
   Box assetBox;
 
   @override
   void initState() {
     super.initState();
     assetBox = Hive.box("assets");
+  }
+
+  void buyorsell(){
+    if(action=="Buy"){
+      textController.value=textController.value.copyWith(text: "+");
+    }
+    if(action=="Sell"){
+      textController.value=textController.value.copyWith(text: "-");
+    }
   }
 
   @override
@@ -69,6 +80,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         setState(() {
                           action = newValue;
                         });
+                        buyorsell();
                       },
                       items: _action.map((item) {
                         return DropdownMenuItem(
@@ -133,6 +145,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         hintStyle: TextStyle(color: Colors.white38),
         border: OutlineInputBorder(),
       ),
+      // ignore: missing_return
       validator: (value) {
         if (value.trim().isEmpty) {
           return "Price is Required";
@@ -157,6 +170,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         hintStyle: TextStyle(color: Colors.white38),
         border: OutlineInputBorder(),
       ),
+      controller: textController,
+      // ignore: missing_return
       validator: (value) {
         if (value.trim().isEmpty) {
           return "Amount is Required";
