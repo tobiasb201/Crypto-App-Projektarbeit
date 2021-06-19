@@ -1,38 +1,41 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'hivenotification.dart';
+part of 'notificationstate.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class HiveNotificationAdapter extends TypeAdapter<HiveNotification> {
+class NotificationStateAdapter extends TypeAdapter<NotificationState> {
   @override
-  final int typeId = 3;
+  final int typeId = 1;
 
   @override
-  HiveNotification read(BinaryReader reader) {
+  NotificationState read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return HiveNotification(
+    return NotificationState(
       asset: fields[0] as String,
-      time: fields[1] as String,
-      percent: fields[2] as int,
+      percentage: fields[1] as double,
+      time: fields[2] as String,
+      switchState: fields[3] as bool,
     );
   }
 
   @override
-  void write(BinaryWriter writer, HiveNotification obj) {
+  void write(BinaryWriter writer, NotificationState obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.asset)
       ..writeByte(1)
-      ..write(obj.time)
+      ..write(obj.percentage)
       ..writeByte(2)
-      ..write(obj.percent);
+      ..write(obj.time)
+      ..writeByte(3)
+      ..write(obj.switchState);
   }
 
   @override
@@ -41,7 +44,7 @@ class HiveNotificationAdapter extends TypeAdapter<HiveNotification> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HiveNotificationAdapter &&
+      other is NotificationStateAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

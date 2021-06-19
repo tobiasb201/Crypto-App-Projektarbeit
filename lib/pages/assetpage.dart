@@ -187,6 +187,7 @@ class _AssetPageState extends State<AssetPage> {
     }
   }
 
+
   String getvolume(AssetStats info){
     var volume = double.parse(info.volume);
     var price = double.parse(info.last);

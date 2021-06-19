@@ -1,4 +1,5 @@
-import 'package:crypto_app/models/hivenotification.dart';
+import 'package:crypto_app/models/notificationstate.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto_app/constants/constant.dart';
 import 'package:hive/hive.dart';
@@ -15,22 +16,27 @@ class _NotificationPageState extends State<NotificationPage> {
   List<String> checkTime = ["15Min","15Min","15Min","15Min","15Min","15Min","15Min","15Min","15Min"];
   List<bool> _switch =[false,false,false,false,false,false,false,false,false];
   bool isSwitched= false;
+  FirebaseMessaging fcm = FirebaseMessaging.instance;
 
   List<int> percentage = [3,3,3,3,3,3,3,3,3];
-  final _percentage=[3,4,5];
-
+  final _percentageOptions=[3,4,5];
+  NotificationState state = new NotificationState();
   Box notificationBox;
 
   @override
   void initState() {
-    super.initState();
     notificationBox = Hive.box("notification");
     if(notificationBox.isNotEmpty){
-      for(var y=0;y<notificationBox.length;y++){
-       HiveNotification test= notificationBox.getAt(y);
-       print(test.asset);
+      for(var y=0;y<_switch.length;y++){
+       state= notificationBox.get(y) as NotificationState;
+       if(state!=null){
+         _switch[y]=state.switchState;
+         checkTime[y]=state.time;
+         percentage[y]=state.percentage.toInt();
+       }
       }
     }
+    super.initState();
   }
 
   @override
@@ -64,9 +70,11 @@ class _NotificationPageState extends State<NotificationPage> {
             dropdownColor: Colors.grey[700],
             value: checkTime[index],
             onChanged: (newValue) {
-              setState(() {
-                checkTime[index] = newValue;
-              });
+              if(_switch[index]==false){
+                setState(() {
+                  checkTime[index] = newValue;
+                });
+              }
             },
             items: _action.map((item) {
               return DropdownMenuItem(
@@ -83,11 +91,13 @@ class _NotificationPageState extends State<NotificationPage> {
               dropdownColor: Colors.grey[700],
               value: percentage[index],
               onChanged: (newValue) {
-                setState(() {
-                  percentage[index] = newValue;
-                });
+                if(_switch[index]==false){
+                  setState(() {
+                    percentage[index] = newValue;
+                  });
+                }
               },
-              items: _percentage.map((item) {
+              items: _percentageOptions.map((item) {
                 return DropdownMenuItem(
                     value: item,
                     child: Text(
@@ -100,16 +110,22 @@ class _NotificationPageState extends State<NotificationPage> {
           Spacer(),
           Switch(
             value: _switch[index],
-            onChanged: (value){
+            onChanged: (value) async {
               setState(() {
                 _switch[index]=value;
               });
               if(_switch[index]==true){
-                final HiveNotification newNotification = HiveNotification(asset: asset,time: checkTime[index],percent: percentage[index]);
-                notificationBox.add(newNotification);
+                fcm.subscribeToTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%');
+                final NotificationState newNotification = NotificationState(
+                    time: checkTime[index],
+                    asset: asset,
+                    percentage: percentage[index].toDouble(),
+                    switchState: _switch[index]);
+                notificationBox.put(index,newNotification);
               }
               else{
-                notificationBox.deleteAt(index);
+                fcm.unsubscribeFromTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%');
+                await notificationBox.delete(index);
               }
             },
             activeTrackColor: Colors.yellow,
@@ -119,6 +135,4 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
     );
   }
-
-
 }

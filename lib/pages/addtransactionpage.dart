@@ -1,6 +1,5 @@
 import 'package:crypto_app/constants/constant.dart';
 import 'package:crypto_app/models/assetbox.dart';
-import 'package:crypto_app/service/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
@@ -15,7 +14,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   String asset = "BTC";
   final _assets = Constant.currencies;
   String action = "Buy";
-  final _action = ["Buy", "Sell"];
+  final _actions = ["Buy", "Sell"];
   final formKey = GlobalKey<FormState>();
   String _price;
   String _amount;
@@ -82,7 +81,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         });
                         buyorsell();
                       },
-                      items: _action.map((item) {
+                      items: _actions.map((item) {
                         return DropdownMenuItem(
                             value: item,
                             child: Text(

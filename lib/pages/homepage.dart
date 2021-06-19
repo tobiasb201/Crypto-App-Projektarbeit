@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   ValueNotifier<double> _balance = ValueNotifier<double>(0);
   List<Pricemodel> balance = [];
   final homepageData= Hive.box('homepageData');
-  Timer _timer;
+  Timer timer;
 
   void notificationPermission() async{
     NotificationSettings settings = await messaging.requestPermission(
@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
     flutterLocalNotificationsPlugin.initialize(initSetting);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      showNotification();
+      showNotification(message);
     });
   }
 
@@ -61,7 +61,8 @@ class _HomePageState extends State<HomePage> {
     print(await messaging.getToken());
   }
 
-  void showNotification() async{
+  void showNotification(RemoteMessage message) async{
+    RemoteNotification payload= message.notification;
     var androidDetails =
     AndroidNotificationDetails('1', 'channelName', 'channel Description');
 
@@ -70,7 +71,7 @@ class _HomePageState extends State<HomePage> {
     var generalNotificationDetails =
     NotificationDetails(android: androidDetails, iOS: iosDetails);
 
-    await flutterLocalNotificationsPlugin.show(0, 'title', 'body', generalNotificationDetails,
+    await flutterLocalNotificationsPlugin.show(0,payload.title,payload.body, generalNotificationDetails,
         payload: 'Notification');
   }
 
@@ -147,14 +148,6 @@ class _HomePageState extends State<HomePage> {
             child: ValueListenableBuilder(
               valueListenable: _balance,
               builder: (context, double balance, _) {
-                if (_balance.value == 0.0) {
-                  return Center(
-                    child: LinearProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[900]),
-                      backgroundColor: Colors.amber[600],
-                    ),
-                  );
-                } else {
                   return Center(
                     child: Text("Current Balance:" +
                         _balance.value.toStringAsFixed(2) +
@@ -162,7 +155,6 @@ class _HomePageState extends State<HomePage> {
                         ),
                   );
                 }
-              },
             ),
           ),
         ),
@@ -273,7 +265,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _initializeTimer(){
-    _timer=Timer.periodic(const Duration(minutes: 2), (_) => loadList(true));
+    timer=Timer.periodic(const Duration(minutes: 2), (_) => loadList(true));
   }
 
 }
