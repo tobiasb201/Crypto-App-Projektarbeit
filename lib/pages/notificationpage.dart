@@ -1,5 +1,6 @@
 import 'package:crypto_app/models/notificationstate.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto_app/constants/constant.dart';
 import 'package:hive/hive.dart';
@@ -48,7 +49,7 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       body: SafeArea(
         child: ListView.builder(itemCount: Constant.currencies.length,itemBuilder: (context,index){
-          return listOverlay(Constant.currencies[index],index);
+            return listOverlay(Constant.currencies[index],index);
         }),
       ),
       backgroundColor: Colors.grey[900],
@@ -56,82 +57,95 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   Widget listOverlay(String asset,int index){
-    return Container(
-      height: 60,
-      padding: const EdgeInsets.all(3.0),
-      decoration: BoxDecoration(
-          border: Border.all(color: Colors.black)
-      ),
-      child: Row(
-        children: <Widget>[
-          Text(""+asset,style: TextStyle(color: Colors.amber[600],fontSize: 18),),
-          Spacer(),
-          DropdownButton(
-            dropdownColor: Colors.grey[700],
-            value: checkTime[index],
-            onChanged: (newValue) {
-              if(_switch[index]==false){
-                setState(() {
-                  checkTime[index] = newValue;
-                });
-              }
-            },
-            items: _action.map((item) {
-              return DropdownMenuItem(
-                  value: item,
-                  child: Text(
-                    item,
-                    style: TextStyle(color: Colors.white),
-                  ));
-            }).toList(),
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 25),
-            child: DropdownButton(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 70,
+        padding: const EdgeInsets.all(3.0),
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.black),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.amber[50].withOpacity(0.1),
+              )
+            ]
+        ),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(right: 7,left: 7),
+              child: Image.asset('assets/$asset.png'),
+            ),
+            Text(""+asset,style: TextStyle(color: Colors.amber[600],fontSize: 18),),
+            Spacer(),
+            DropdownButton(
               dropdownColor: Colors.grey[700],
-              value: percentage[index],
+              value: checkTime[index],
               onChanged: (newValue) {
                 if(_switch[index]==false){
                   setState(() {
-                    percentage[index] = newValue;
+                    checkTime[index] = newValue;
                   });
                 }
               },
-              items: _percentageOptions.map((item) {
+              items: _action.map((item) {
                 return DropdownMenuItem(
                     value: item,
                     child: Text(
-                      item.toString()+"%",
+                      item,
                       style: TextStyle(color: Colors.white),
                     ));
               }).toList(),
             ),
-          ),
-          Spacer(),
-          Switch(
-            value: _switch[index],
-            onChanged: (value) async {
-              setState(() {
-                _switch[index]=value;
-              });
-              if(_switch[index]==true){
-                fcm.subscribeToTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%');
-                final NotificationState newNotification = NotificationState(
-                    time: checkTime[index],
-                    asset: asset,
-                    percentage: percentage[index].toDouble(),
-                    switchState: _switch[index]);
-                notificationBox.put(index,newNotification);
-              }
-              else{
-                fcm.unsubscribeFromTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%');
-                await notificationBox.delete(index);
-              }
-            },
-            activeTrackColor: Colors.yellow,
-            activeColor: Colors.amber[600],
-          )
-        ],
+            Container(
+              margin: EdgeInsets.only(left: 25),
+              child: DropdownButton(
+                dropdownColor: Colors.grey[700],
+                value: percentage[index],
+                onChanged: (newValue) {
+                  if(_switch[index]==false){
+                    setState(() {
+                      percentage[index] = newValue;
+                    });
+                  }
+                },
+                items: _percentageOptions.map((item) {
+                  return DropdownMenuItem(
+                      value: item,
+                      child: Text(
+                        item.toString()+"%",
+                        style: TextStyle(color: Colors.white),
+                      ));
+                }).toList(),
+              ),
+            ),
+            Spacer(),
+            Switch(
+              value: _switch[index],
+              onChanged: (value) async {
+                setState(() {
+                  _switch[index]=value;
+                });
+                if(_switch[index]==true){
+                  fcm.subscribeToTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%');
+                  final NotificationState newNotification = NotificationState(
+                      time: checkTime[index],
+                      asset: asset,
+                      percentage: percentage[index].toDouble(),
+                      switchState: _switch[index]);
+                  notificationBox.put(index,newNotification);
+                }
+                else{
+                  fcm.unsubscribeFromTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%');
+                  await notificationBox.delete(index);
+                }
+              },
+              activeTrackColor: Colors.yellow,
+              activeColor: Colors.amber[600],
+            )
+          ],
+        ),
       ),
     );
   }

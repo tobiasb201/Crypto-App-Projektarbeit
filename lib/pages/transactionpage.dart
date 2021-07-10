@@ -68,27 +68,45 @@ class _TransactionPageState extends State<TransactionPage> {
             itemCount: assetbox.length,
             itemBuilder: (context, index) {
               final asset = assetbox.getAt(index) as AssetBox;
-              return ListTile(
-                title: Text(
-                  asset.asset,
-                  style: TextStyle(color: Colors.amber[400]),
+              return Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.amber[50].withOpacity(0.1),
+                      )
+                    ]
                 ),
-                subtitle: Text("Price:" +
-                    asset.price.toString() +
-                    ""+Constant.currentCurrency+"\n""Amount:" +
-                    asset.amount.toString(),style: TextStyle(color:Colors.amber[400]),),
-                trailing:
-                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                  actioncolor(asset.action),
-                  IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () async {
-                      await assetbox.deleteAt(index);
-                    },
-                  )
-                ]),
-                leading: Text(asset.date.toString(),style: TextStyle(color: Colors.white60),),
-                isThreeLine: true,
+                child: ListTile(
+                  title: Text(
+                    asset.asset,
+                    style: TextStyle(color: Colors.amber[400]),
+                  ),
+                  subtitle: Text("Price: " +
+                      asset.price.toString() +
+                      ""+Constant.currentCurrency+"\n""Amount: " +
+                      asset.amount.toString(),style: TextStyle(color:Colors.amber[400]),),
+                  trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                    actioncolor(asset.action),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () async {
+                        await assetbox.deleteAt(index);
+                      },
+                    )
+                  ]),
+                  leading: Container(
+                    decoration: BoxDecoration(
+                      border: new Border(
+                        right: new BorderSide(width: 2, color: Colors.white24)
+                      )
+                    ),
+                      child: Text(asset.date.toString(),style: TextStyle(color: Colors.white60))
+                  ),
+                  isThreeLine: true,
+                ),
               );
             });
       },
