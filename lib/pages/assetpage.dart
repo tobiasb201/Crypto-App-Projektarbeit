@@ -75,6 +75,8 @@ class _AssetPageState extends State<AssetPage> {
                       }
                   )
               ),
+              Center(child: FittedBox(child: Text("Transactions:",style: TextStyle(color: Colors.amber[600], fontSize: 20)))),
+              transactionLength(filteredTransactions),
               Expanded(
                 child: ListView.builder(itemCount:filteredTransactions.length,shrinkWrap:true,itemBuilder: (context,index) {
                   final transaction = filteredTransactions[index] as AssetBox;
@@ -92,7 +94,7 @@ class _AssetPageState extends State<AssetPage> {
     return GridView.count(
         shrinkWrap: true,
         crossAxisCount: 2,
-        childAspectRatio: 1.7,
+        childAspectRatio: 1.8,
         padding: EdgeInsets.all(20),
         children: <Widget>[
           Card(
@@ -103,7 +105,7 @@ class _AssetPageState extends State<AssetPage> {
                   Text("24h Volumen:",style: TextStyle(color: Colors.white),),
                   SizedBox(height: 10),
                   Center(
-                    child: Text(getvolume(info)+""+currency,textAlign: TextAlign.center, style: TextStyle(color:Colors.white,fontSize: 30),)
+                    child: FittedBox(child: Text(getvolume(info)+""+currency,textAlign: TextAlign.center, style: TextStyle(color:Colors.white,fontSize: 30),))
                   ),
                 ],
               )
@@ -116,7 +118,7 @@ class _AssetPageState extends State<AssetPage> {
                   Text("Price:",style: TextStyle(color: Colors.white),),
                   SizedBox(height: 10),
                   Center(
-                      child: Text(info.last+""+currency, textAlign: TextAlign.center, style: TextStyle(color:Colors.white,fontSize: 30),)
+                      child: FittedBox(child: Text(info.last+""+currency, textAlign: TextAlign.center, style: TextStyle(color:Colors.white,fontSize: 30),))
                   ),
                 ],
               )
@@ -142,7 +144,7 @@ class _AssetPageState extends State<AssetPage> {
                   Text("Balance:",style: TextStyle(color: Colors.white),),
                   SizedBox(height: 10),
                   Center(
-                      child: Text(balance(info.last).toStringAsFixed(2)+""+currency, style: TextStyle(fontSize: 30, color:Colors.white),)
+                      child: FittedBox(child: Text(balance(info.last).toStringAsFixed(2)+""+currency, style: TextStyle(fontSize: 30, color:Colors.white),))
                   )
                 ],
               )
@@ -172,6 +174,14 @@ class _AssetPageState extends State<AssetPage> {
       isThreeLine: true,
     );
   }
+
+  Align transactionLength(List transactionList){
+    if(transactionList.length<1){
+      return Align(alignment: Alignment.center,child: Text("....",style: TextStyle(fontSize: 18)));
+    }
+    return Align();
+  }
+
 
   Text actioncolor(String action) {
     if (action == "Buy") {

@@ -21,7 +21,8 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Crypto App"),
+        title: Center(child: Text("UTDCrypto")),
+        elevation: 1.0,
         backgroundColor: Colors.grey[900],
       ),
       body: SafeArea(

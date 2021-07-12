@@ -1,5 +1,6 @@
 import 'package:crypto_app/constants/constant.dart';
 import 'package:crypto_app/models/assetbox.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
@@ -55,40 +56,64 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    DropdownButton(
-                      dropdownColor: Colors.grey[700],
-                      value: asset,
-                      onChanged: (newValue) {
-                        setState(() {
-                          asset = newValue;
-                        });
-                      },
-                      items: _assets.map((item) {
-                        return DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: TextStyle(color: Colors.white),
-                            ));
-                      }).toList(),
+                    Container(
+                      width: MediaQuery.of(context).size.width/1.6,
+                      margin: EdgeInsets.only(top: 10),
+                      decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[700]),
+                      borderRadius: BorderRadius.circular(23),
+                      boxShadow: [
+                    BoxShadow(
+                      color: Colors.amber[50].withOpacity(0.1),
+                      )
+                      ]
                     ),
-                    DropdownButton(
-                      dropdownColor: Colors.grey[700],
-                      value: action,
-                      onChanged: (newValue) {
-                        setState(() {
-                          action = newValue;
-                        });
-                        buyorsell();
-                      },
-                      items: _actions.map((item) {
-                        return DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: TextStyle(color: Colors.white),
-                            ));
-                      }).toList(),
+                      child: Center(
+                        child: FittedBox(child: Text("New Transaction",style: TextStyle(fontSize: 20,color: Colors.amber[600])))
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 50, right: 50, top: 10,bottom: 20),
+                      child: Row(
+                        children: <Widget>[
+                          DropdownButton(
+                            dropdownColor: Colors.grey[700],
+                            value: asset,
+                            onChanged: (newValue) {
+                              setState(() {
+                                asset = newValue;
+                              });
+                            },
+                            items: _assets.map((item) {
+                              return DropdownMenuItem(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: TextStyle(color: Colors.white),
+                                  ));
+                            }).toList(),
+                          ),
+                          Spacer(),
+                          DropdownButton(
+                            dropdownColor: Colors.grey[700],
+                            value: action,
+                            onChanged: (newValue) {
+                              setState(() {
+                                action = newValue;
+                              });
+                              buyorsell();
+                            },
+                            items: _actions.map((item) {
+                              return DropdownMenuItem(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: TextStyle(color: Colors.white),
+                                  ));
+                            }).toList(),
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(
                       height: 10,
@@ -119,6 +144,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                 date: _date,
                                 price: _price);
                             assetBox.add(newTransaction);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Added new Transaction",style: TextStyle(color: Colors.amber[600]),), behavior: SnackBarBehavior.floating,)
+                            );
                           }
                           Navigator.of(context).pop();
                         },
@@ -142,7 +170,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       decoration: InputDecoration(
         hintText: 'Price:',
         hintStyle: TextStyle(color: Colors.white38),
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
       // ignore: missing_return
       validator: (value) {
@@ -167,7 +195,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       decoration: InputDecoration(
         hintText: 'Amount:',
         hintStyle: TextStyle(color: Colors.white38),
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
       controller: textController,
       // ignore: missing_return
@@ -194,7 +222,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       decoration: InputDecoration(
         labelText: "Date:",
         labelStyle: TextStyle(color: Colors.white38),
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
       initialValue: formatter.toString(),
       onSaved: (value) {
