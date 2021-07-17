@@ -38,7 +38,8 @@ class _AssetPageState extends State<AssetPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Crypto App"),
+        title: Text("UTDCrypto",style: TextStyle(color: Colors.grey[500])),
+        backgroundColor: Colors.grey[900],
       ),
       body: SafeArea(
           child: Column(
@@ -48,14 +49,19 @@ class _AssetPageState extends State<AssetPage> {
                   alignment: Alignment.topCenter,
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 5,left: 0,right: 0,top: 20),
-                    child: Row(
-                      children: <Widget>[
-                        Spacer(),
-                        Image.asset('assets/$icon.png'),
-                        Text(widget.asset.data.base,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(height: 1, fontSize: 50,color: Colors.white),),
-                        Spacer(),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: <Widget>[
+                            Spacer(),
+                            Image.asset('assets/$icon.png'),
+                            Text(widget.asset.data.base,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(height: 1, fontSize: 50,color: Colors.white),),
+                            Spacer(),
+                          ],
+                        ),
+                        Text("("+Constant.assetNameMap[widget.asset.data.base]+")",style: TextStyle(color: Colors.white)),
                       ],
                     ),
                   )

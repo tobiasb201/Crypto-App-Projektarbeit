@@ -44,7 +44,7 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text("UTDCrypto")),
+        title: Center(child: Text("UTDCrypto",style: TextStyle(color: Colors.grey[500]))),
         elevation: 1.0,
         backgroundColor: Colors.grey[900],
       ),
@@ -80,9 +80,11 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             Text(""+asset,style: TextStyle(color: Colors.amber[600],fontSize: 18),),
             Spacer(),
+            Icon(Icons.access_alarm,color: Colors.grey),
             DropdownButton(
               dropdownColor: Colors.grey[700],
               value: checkTime[index],
+              underline: SizedBox(),
               onChanged: (newValue) {
                 if(_switch[index]==false){
                   setState(() {
@@ -100,10 +102,11 @@ class _NotificationPageState extends State<NotificationPage> {
               }).toList(),
             ),
             Container(
-              margin: EdgeInsets.only(left: 25),
+              margin: EdgeInsets.only(left: 38),
               child: DropdownButton(
                 dropdownColor: Colors.grey[700],
                 value: percentage[index],
+                underline: SizedBox(),
                 onChanged: (newValue) {
                   if(_switch[index]==false){
                     setState(() {

@@ -57,10 +57,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void getToken() async{
-    print(await messaging.getToken());
-  }
-
   void showNotification(RemoteMessage message) async{
     RemoteNotification payload= message.notification;
     var androidDetails =
@@ -90,7 +86,6 @@ class _HomePageState extends State<HomePage> {
 
     notificationPermission();
     initMessaging();
-    getToken();
   }
 
   Future loadList(bool refresh) async {
@@ -130,7 +125,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text("UTDCrypto")),
+        title: Center(child: Text("UTDCrypto",style: TextStyle(color: Colors.grey[500]))),
         elevation: 1.0,
         backgroundColor: Colors.grey[900],
       ),
