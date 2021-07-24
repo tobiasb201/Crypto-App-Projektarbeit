@@ -71,6 +71,10 @@ class _HomePageState extends State<HomePage> {
         payload: 'Notification');
   }
 
+  void getToken() async{
+    print(await messaging.getToken());
+  }
+
 
   @override
   void initState() {
