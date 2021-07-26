@@ -12,15 +12,15 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Directory document = await getApplicationDocumentsDirectory();
-  Hive.registerAdapter(AssetBoxAdapter()); //Vor dem Hive init
-  Hive.registerAdapter(NotificationStateAdapter());
-  Hive.init(document.path);
+  Hive.registerAdapter(AssetBoxAdapter()); //Hive accepts model via adapter
+  Hive.registerAdapter(NotificationStateAdapter()); //Hive accepts model via adapter
+  Hive.init(document.path);//Hive saving path
   await Hive.openBox("assets");
   await Hive.openBox('currency');
   await Hive.openBox('homepageData');
   await Hive.openBox('notification');
   await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler); //Notification's handled in background
   runApp(MyApp());
 }
 

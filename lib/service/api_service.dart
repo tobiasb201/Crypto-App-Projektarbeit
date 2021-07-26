@@ -7,22 +7,22 @@ import 'package:hive/hive.dart';
 
 class Api_Service {
   List<Pricemodel> priceList = <Pricemodel>[];
-  final box = Hive.box('currency');
-  final homepageData = Hive.box('homepageData');
+  final box = Hive.box('currency'); //saved currency from hive-box
+  final homepageData = Hive.box('homepageData');//price model Hive-Box
 
   Future<List<Pricemodel>> getprices(bool refresh) async {
     String currency = box.get('currency');
     Pricemodel pricemodel;
     if (homepageData.isEmpty || refresh == true) {
-      homepageData.deleteAll(homepageData.keys);
+      homepageData.deleteAll(homepageData.keys); //deletes all outdated price models in hive-box
       print("From inet");
       for (var currencies in Constant.currencies) {
         var response = await http.get(Uri.parse(
             "https://api.coinbase.com/v2/prices/$currencies-$currency/spot"));
-        if (response.statusCode == 200) {
+        if (response.statusCode == 200) { //connection established
           String jsonString = response.body;
           pricemodel = pricemodelFromJson(jsonString);
-          homepageData.add(jsonString);
+          homepageData.add(jsonString); //saves new jsonString in hive-box
           priceList.add(pricemodel);
         }
       }

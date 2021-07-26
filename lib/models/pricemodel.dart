@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+//Used for getting prices from api
 Pricemodel pricemodelFromJson(String str) => Pricemodel.fromJson(json.decode(str));
 
 class Pricemodel {

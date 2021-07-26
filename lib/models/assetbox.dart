@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 
 part 'assetbox.g.dart';
-
+//Used for Transactions
 @HiveType(typeId: 0)
 class AssetBox{
   @HiveField(0)

@@ -12,26 +12,26 @@ class AddTransactionPage extends StatefulWidget {
 }
 
 class _AddTransactionPageState extends State<AddTransactionPage> {
-  String asset = "BTC";
-  final _assets = Constant.currencies;
-  String action = "Buy";
+  String asset = "BTC"; //Selected Asset
+  final _assets = Constant.currencies; //All choosable Assets
+  String action = "Buy"; //Selected Action
   final _actions = ["Buy", "Sell"];
-  final formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>(); //
   String _price;
   String _amount;
   String _date;
 
-  var textController = TextEditingController();
+  var textController = TextEditingController(); //Edit Textfield's
 
-  Box assetBox;
+  Box assetBox; //TransactionBox(Hive)
 
   @override
   void initState() {
     super.initState();
-    assetBox = Hive.box("assets");
+    assetBox = Hive.box("assets"); //Box name
   }
 
-  void buyorsell(){
+  void buyorsell(){ //Adds + or - to the Tnputfield wether its a buy or sell action
     if(action=="Buy"){
       textController.value=textController.value.copyWith(text: "+");
     }
@@ -56,8 +56,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Container(
-                      width: MediaQuery.of(context).size.width/1.6,
+                    Container( //Contrainer for Headline
+                      width: MediaQuery.of(context).size.width/1.6, //Fixed width depending on device
                       margin: EdgeInsets.only(top: 10),
                       decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey[700]),
@@ -101,7 +101,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                               setState(() {
                                 action = newValue;
                               });
-                              buyorsell();
+                              buyorsell(); //Checks option selected, to prefill textfield
                             },
                             items: _actions.map((item) {
                               return DropdownMenuItem(
@@ -135,18 +135,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                             backgroundColor: MaterialStateProperty.all<Color>(
                                 Colors.amber[600])),
                         onPressed: () {
-                          if (formKey.currentState.validate()) {
-                            formKey.currentState.save();
-                            final AssetBox newTransaction = AssetBox(
+                          if (formKey.currentState.validate()) { //Validates if textfields are filled
+                            formKey.currentState.save(); //Saves state of textfields
+                            final AssetBox newTransaction = AssetBox( //New Transaction
                                 action: action,
                                 amount: _amount,
                                 asset: asset,
                                 date: _date,
                                 price: _price);
-                            assetBox.add(newTransaction);
+                            assetBox.add(newTransaction); //Adds data to hive-box
                             ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text("Added new Transaction",style: TextStyle(color: Colors.amber[600]),), behavior: SnackBarBehavior.floating,)
-                            );
+                            );//Snackbar shows if transaction has been created
                           }
                           Navigator.of(context).pop();
                         },
@@ -174,7 +174,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       ),
       // ignore: missing_return
       validator: (value) {
-        if (value.trim().isEmpty) {
+        if (value.trim().isEmpty) { //No Price input
           return "Price is Required";
         }
         if (value.length < 0) {
@@ -184,7 +184,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       onSaved: (value) {
         return _price = value;
       },
-      maxLength: 20,
+      maxLength: 20, //Max Price length
     ));
   }
 
@@ -197,7 +197,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         hintStyle: TextStyle(color: Colors.white38),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      controller: textController,
+      controller: textController, //textcontroller variable for editing
       // ignore: missing_return
       validator: (value) {
         if (value.trim().isEmpty) {
@@ -215,7 +215,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
   Widget _buildDate() {
     final now = new DateTime.now();
-    String formatter = DateFormat('yMd').format(now);
+    String formatter = DateFormat('yMd').format(now); //Only year,month,day
     return Flexible(
         child: TextFormField(
       style: TextStyle(color: Colors.white54),

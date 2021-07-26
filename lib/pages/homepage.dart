@@ -17,15 +17,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  FirebaseMessaging messaging = FirebaseMessaging.instance; //Cloud Messaging
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
-  Future<List<Pricemodel>> prices;
-  ValueNotifier<double> _balance = ValueNotifier<double>(0);
+  Future<List<Pricemodel>> prices; //price list
+  ValueNotifier<double> _balance = ValueNotifier<double>(0); //Balance notifier
   List<Pricemodel> balance = [];
-  final homepageData= Hive.box('homepageData');
-  Timer timer;
+  final homepageData= Hive.box('homepageData'); //Hive box for cached prices
+  Timer timer; //timer for automatic 2min price refresh
 
   void notificationPermission() async{
     NotificationSettings settings = await messaging.requestPermission(
@@ -44,7 +44,11 @@ class _HomePageState extends State<HomePage> {
   void initMessaging(){
     var androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    var iosInit = IOSInitializationSettings();
+    final IOSInitializationSettings iosInit = IOSInitializationSettings(
+      requestSoundPermission: false,
+      requestBadgePermission: false,
+      requestAlertPermission: false,
+    );
 
     var initSetting = InitializationSettings(android: androidInit, iOS: iosInit);
 
@@ -53,20 +57,25 @@ class _HomePageState extends State<HomePage> {
     flutterLocalNotificationsPlugin.initialize(initSetting);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      showNotification(message);
+      showNotification(message);//Notification message gets passed
     });
   }
 
   void showNotification(RemoteMessage message) async{
-    RemoteNotification payload= message.notification;
+    RemoteNotification payload= message.notification;//notification data
     var androidDetails =
     AndroidNotificationDetails('1', 'channelName', 'channel Description');
 
-    var iosDetails = IOSNotificationDetails();
+    var iosDetails = IOSNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
 
     var generalNotificationDetails =
     NotificationDetails(android: androidDetails, iOS: iosDetails);
 
+    //Visible data from the Notification
     await flutterLocalNotificationsPlugin.show(0,payload.title,payload.body, generalNotificationDetails,
         payload: 'Notification');
   }
@@ -78,11 +87,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    loadList(false).then((value) {
+    loadList(false).then((value) {  //takes prices from Hive
       value.forEach((element) {
         balance.add(element);
       });
-      getbalance(balance);
+      getbalance(balance); //balance=Pricemodel
       return balance;
     });
     _initializeTimer();
@@ -90,9 +99,10 @@ class _HomePageState extends State<HomePage> {
 
     notificationPermission();
     initMessaging();
+    getToken();
   }
 
-  Future loadList(bool refresh) async {
+  Future loadList(bool refresh) async {//Check if $ or € prices has to be requested
     final box = Hive.box('currency');
     if (box.isEmpty) {
       box.put('currency', 'USD');
@@ -106,7 +116,7 @@ class _HomePageState extends State<HomePage> {
         Constant.currentCurrency="€";
       }
     }
-      prices = Api_Service().getprices(refresh);
+      prices = Api_Service().getprices(refresh); //refresh==true means from api
       setState(() {
         prices = this.prices;
       });
@@ -120,8 +130,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future refresh() async {
-    Future.delayed(Duration(seconds: 1));
+  Future refresh() async { //For the pull down functionality
+    Future.delayed(Duration(seconds: 1));//1sec duration to prevent spam
     loadList(true);
   }
 
@@ -145,7 +155,7 @@ class _HomePageState extends State<HomePage> {
           child: InkWell(
             onTap: changecurrency,
             splashColor: Colors.transparent,
-            child: ValueListenableBuilder(
+            child: ValueListenableBuilder( //Listens to _balance for updating in realtime
               valueListenable: _balance,
               builder: (context, double balance, _) {
                   return Center(
@@ -159,7 +169,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Expanded(
-          child: RefreshIndicator(
+          child: RefreshIndicator( //pull down refresh functionality
             onRefresh: refresh,
             child: FutureBuilder(
               future: prices,
@@ -170,10 +180,10 @@ class _HomePageState extends State<HomePage> {
                       itemCount: data.length,
                       itemBuilder: (context, index) {
                         final priceData = data[index];
-                        return _getListItemUi(priceData, index);
+                        return _getListItemUi(priceData, index); //Price list for each asset
                       });
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator()); //preventing loading times
                 }
               },
             ),
@@ -184,7 +194,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void changecurrency() {
+  void changecurrency() { //Changes currency when clicking on balance
     final box = Hive.box('currency');
     if (box.get('currency') == 'USD') {
       box.put('currency', 'EUR');
@@ -195,7 +205,7 @@ class _HomePageState extends State<HomePage> {
     }
     balance = [];
     _balance.value = 0.0;
-    loadList(true).then((value) {
+    loadList(true).then((value) { //Loading new price data
       value.forEach((element) {
         balance.add(element);
       });
@@ -204,25 +214,25 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  ValueNotifier<double> getbalance(List<Pricemodel> data) {
+  ValueNotifier<double> getbalance(List<Pricemodel> data) { //Calculates Balance
     final box = Hive.box('assets');
     var temp;
-    for (var i = 0; i < box.length; i++) {
+    for (var i = 0; i < box.length; i++) { //each transaction
       final assetbox = box.getAt(i) as AssetBox;
-      for (var y = 0; y < data.length; y++) {
+      for (var y = 0; y < data.length; y++) { //each Pricemodel
         Pricemodel asset = data[y];
-        if (asset.data.base == assetbox.asset) {
+        if (asset.data.base == assetbox.asset) { //pricemodel Asset == transaction asset
           var amount = double.parse(assetbox.amount);
           var price = double.parse(asset.data.amount);
           temp = amount * price;
         }
       }
-      _balance.value = _balance.value + temp;
+      _balance.value = _balance.value + temp; //balance addition
     }
     return _balance;
   }
 
-  ListTile _getListItemUi(Pricemodel priceData, int index) {
+  ListTile _getListItemUi(Pricemodel priceData, int index) { //Asset list
     String image = priceData.data.base;
     double holding = holdings(priceData.data.base);
     var amount = double.parse(priceData.data.amount);
@@ -240,7 +250,7 @@ class _HomePageState extends State<HomePage> {
         style: TextStyle(color: Colors.white),
       ),
       leading: Image.asset('assets/$image.png'),
-      onTap: () {
+      onTap: () { //click on Asset to navigate to Asset page
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -251,8 +261,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  double holdings(String assetId) {
-    final hivebox = Hive.box('assets');
+  double holdings(String assetId) { //Shows current Holdings of each asset
+    final hivebox = Hive.box('assets'); //Transaction hive-box
     var holding = 0.0;
     for (var i = 0; i < hivebox.length; i++) {
       final assetbox = hivebox.getAt(i) as AssetBox;
@@ -264,7 +274,7 @@ class _HomePageState extends State<HomePage> {
     return holding;
   }
 
-  void _initializeTimer(){
+  void _initializeTimer(){ //2min Timer for price update
     timer=Timer.periodic(const Duration(minutes: 2), (_) => loadList(true));
   }
 

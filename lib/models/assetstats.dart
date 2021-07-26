@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+//Used for Statistics on AssetPage
 AssetStats assetStatsFromJson(String str) => AssetStats.fromJson(json.decode(str));
 
 class AssetStats {

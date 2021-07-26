@@ -11,7 +11,7 @@ class Navbar extends StatefulWidget {
 
 class _NavbarState extends State<Navbar> {
   int _selectedIndex = 1;
-  List<Widget> _widgetOptions = <Widget>[
+  List<Widget> _widgetOptions = <Widget>[//Selectable Pages
     NotificationPage(),
     HomePage(),
     TransactionPage(),

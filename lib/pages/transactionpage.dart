@@ -38,7 +38,7 @@ class _TransactionPageState extends State<TransactionPage> {
                   "Add Transaction",
                   style: TextStyle(color: Colors.black),
                 ),
-                onPressed: () {
+                onPressed: () { //Routing to AddTransactionPage
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -49,7 +49,7 @@ class _TransactionPageState extends State<TransactionPage> {
               ),
             ),
             Expanded(
-              child: _buildListView(),
+              child: _buildListView(), //List all transactions
             ),
           ],
         ),
@@ -60,17 +60,17 @@ class _TransactionPageState extends State<TransactionPage> {
 
   Widget _buildListView() {
     // ignore: deprecated_member_use
-    return WatchBoxBuilder(
-      box: Hive.box('assets'),
+    return WatchBoxBuilder( //When transaction gets added Builder automatically updates
+      box: Hive.box('assets'), //transactions
       builder: (context, assetbox) {
         return ListView.separated(
           separatorBuilder: (context,index)=>Divider(color: Colors.grey[700],),
             shrinkWrap: true,
-            itemCount: assetbox.length,
+            itemCount: assetbox.length, //Length of all transactions
             itemBuilder: (context, index) {
               final asset = assetbox.getAt(index) as AssetBox;
               return Container(
-                decoration: BoxDecoration(
+                decoration: BoxDecoration(//Box styling
                     border: Border.all(color: Colors.black),
                     borderRadius: BorderRadius.circular(15),
                     boxShadow: [
@@ -89,11 +89,11 @@ class _TransactionPageState extends State<TransactionPage> {
                       ""+Constant.currentCurrency+"\n""Amount: " +
                       asset.amount.toString(),style: TextStyle(color:Colors.amber[400]),),
                   trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[ //min Icon and action size for responsiveness
                     actioncolor(asset.action),
                     IconButton(
                       icon: Icon(Icons.delete),
-                      onPressed: () async {
+                      onPressed: () async { //deletes Transaction
                         await assetbox.deleteAt(index);
                       },
                     )
@@ -101,7 +101,7 @@ class _TransactionPageState extends State<TransactionPage> {
                   leading: Container(
                     decoration: BoxDecoration(
                       border: new Border(
-                        right: new BorderSide(width: 2, color: Colors.white24)
+                        right: new BorderSide(width: 2, color: Colors.white24) //Small vertical Line
                       )
                     ),
                       child: Text(asset.date.toString(),style: TextStyle(color: Colors.white60))
@@ -114,7 +114,7 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 
-  Text actioncolor(String action) {
+  Text actioncolor(String action) {  //Different Color for Buy,Sell
     if (action == "Buy") {
       return Text(
         action,

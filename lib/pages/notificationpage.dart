@@ -17,23 +17,23 @@ class _NotificationPageState extends State<NotificationPage> {
   List<String> checkTime = ["15Min","15Min","15Min","15Min","15Min","15Min","15Min","15Min","15Min"];
   List<bool> _switch =[false,false,false,false,false,false,false,false,false];
   bool isSwitched= false;
-  FirebaseMessaging fcm = FirebaseMessaging.instance;
+  FirebaseMessaging fcm = FirebaseMessaging.instance;//Firebase Cloud Messaging
 
   List<int> percentage = [3,3,3,3,3,3,3,3,3];
   final _percentageOptions=[3,4,5];
   NotificationState state = new NotificationState();
-  Box notificationBox;
+  Box notificationBox;//Hive-box
 
   @override
   void initState() {
-    notificationBox = Hive.box("notification");
+    notificationBox = Hive.box("notification"); //Hive-box for notification states
     if(notificationBox.isNotEmpty){
       for(var y=0;y<_switch.length;y++){
        state= notificationBox.get(y) as NotificationState;
        if(state!=null){
-         _switch[y]=state.switchState;
-         checkTime[y]=state.time;
-         percentage[y]=state.percentage.toInt();
+         _switch[y]=state.switchState; //turns switches on
+         checkTime[y]=state.time; //right time saved by hive-box
+         percentage[y]=state.percentage.toInt();//right percentage saved by hive-box
        }
       }
     }
@@ -50,7 +50,7 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       body: SafeArea(
         child: ListView.builder(itemCount: Constant.currencies.length,itemBuilder: (context,index){
-            return listOverlay(Constant.currencies[index],index);
+            return listOverlay(Constant.currencies[index],index);//Each list item for a notification
         }),
       ),
       backgroundColor: Colors.grey[900],
@@ -84,7 +84,7 @@ class _NotificationPageState extends State<NotificationPage> {
             DropdownButton(
               dropdownColor: Colors.grey[700],
               value: checkTime[index],
-              underline: SizedBox(),
+              underline: SizedBox(), //makes the underline go away and sets a empty SizedBox below the time
               onChanged: (newValue) {
                 if(_switch[index]==false){
                   setState(() {
@@ -106,7 +106,7 @@ class _NotificationPageState extends State<NotificationPage> {
               child: DropdownButton(
                 dropdownColor: Colors.grey[700],
                 value: percentage[index],
-                underline: SizedBox(),
+                underline: SizedBox(), //makes the underline go away and sets a empty SizedBox below the percentage
                 onChanged: (newValue) {
                   if(_switch[index]==false){
                     setState(() {
@@ -124,7 +124,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 }).toList(),
               ),
             ),
-            Spacer(),
+            Spacer(), //left space between dropdown menu and switch
             Switch(
               value: _switch[index],
               onChanged: (value) async {
@@ -132,21 +132,21 @@ class _NotificationPageState extends State<NotificationPage> {
                   _switch[index]=value;
                 });
                 if(_switch[index]==true){
-                  fcm.subscribeToTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%');
-                  final NotificationState newNotification = NotificationState(
+                  fcm.subscribeToTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%'); //subscribes to topic in firebase
+                  final NotificationState newNotification = NotificationState( //creates new Notification model
                       time: checkTime[index],
                       asset: asset,
                       percentage: percentage[index].toDouble(),
                       switchState: _switch[index]);
-                  notificationBox.put(index,newNotification);
+                  notificationBox.put(index,newNotification); //saves notification model in hive-box and the right index
                 }
                 else{
-                  fcm.unsubscribeFromTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%');
-                  await notificationBox.delete(index);
+                  fcm.unsubscribeFromTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%'); //unsubscribes from topic
+                  await notificationBox.delete(index); //deletes the notification state at index
                 }
               },
-              activeTrackColor: Colors.yellow,
-              activeColor: Colors.amber[600],
+              activeTrackColor: Colors.yellow, //Background switch Color when active
+              activeColor: Colors.amber[600], //switch circle color
             )
           ],
         ),

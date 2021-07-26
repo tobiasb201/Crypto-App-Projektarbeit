@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 part 'notificationstate.g.dart';
-
+//Used for saving Notification settings
 @HiveType(typeId: 1)
 class NotificationState {
   @HiveField(0)
