@@ -158,13 +158,28 @@ class _HomePageState extends State<HomePage> {
             child: ValueListenableBuilder( //Listens to _balance for updating in realtime
               valueListenable: _balance,
               builder: (context, double balance, _) {
+                if (Hive.box('assets').isEmpty) {
+                  return Center(
+                    child: Text("Current Balance: 0"+Constant.currentCurrency
+                    ),
+                  );
+                } else if (Hive.box('assets').isNotEmpty && _balance.value == 0.0){
+                  return Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[900]),
+                      backgroundColor: Colors.amber[600],
+                    ),
+                  );
+                }
+                else{
                   return Center(
                     child: Text("Current Balance:" +
                         _balance.value.toStringAsFixed(2) +
                         ""+Constant.currentCurrency
-                        ),
+                    ),
                   );
                 }
+              }
             ),
           ),
         ),
@@ -203,7 +218,7 @@ class _HomePageState extends State<HomePage> {
       box.put('currency', 'USD');
       Constant.currentCurrency="\$";
     }
-    balance = [];
+    balance = []; //Transactions to calculate balance
     _balance.value = 0.0;
     loadList(true).then((value) { //Loading new price data
       value.forEach((element) {
@@ -242,7 +257,7 @@ class _HomePageState extends State<HomePage> {
         style: TextStyle(color: Colors.white),
       ),
       subtitle: Text(
-        "Current Holdings:" + holding.toString(),
+        "Current Holdings:" + holding.toStringAsFixed(5),
         style: TextStyle(color: Colors.white54),
       ),
       trailing: Text(
