@@ -6,11 +6,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
 
-  FirebaseMessaging messaging = FirebaseMessaging.instance; //Cloud Messaging
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  FirebaseMessaging _messaging = FirebaseMessaging.instance; //Cloud Messaging
+  FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
 
   void notificationPermission() async{
-    NotificationSettings settings = await messaging.requestPermission(
+    NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
@@ -34,9 +34,9 @@ class NotificationService {
 
     var initSetting = InitializationSettings(android: androidInit, iOS: iosInit);
 
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    flutterLocalNotificationsPlugin.initialize(initSetting);
+    _flutterLocalNotificationsPlugin.initialize(initSetting);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       showNotification(message);//Notification message gets passed
@@ -59,11 +59,11 @@ class NotificationService {
     NotificationDetails(android: androidDetails, iOS: iosDetails);
 
     //Visible data from the Notification
-    await flutterLocalNotificationsPlugin.show(0,payload.title,payload.body, generalNotificationDetails,
+    await _flutterLocalNotificationsPlugin.show(0,payload.title,payload.body, generalNotificationDetails,
         payload: 'Notification');
   }
 
   void getToken() async{
-    print(await messaging.getToken());
+    print(await _messaging.getToken());
   }
 }
