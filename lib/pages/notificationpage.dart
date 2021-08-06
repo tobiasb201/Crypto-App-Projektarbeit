@@ -12,28 +12,27 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
 
-  final _action = ["15Min","1h"];
+  final _timeOptions = ["15Min","1h"];
   // ignore: deprecated_member_use
-  List<String> checkTime = ["15Min","15Min","15Min","15Min","15Min","15Min","15Min","15Min","15Min"];
-  List<bool> _switch =[false,false,false,false,false,false,false,false,false];
-  bool isSwitched= false;
-  FirebaseMessaging fcm = FirebaseMessaging.instance;//Firebase Cloud Messaging
+  List<String> _checkTime = ["15Min","15Min","15Min","15Min","15Min","15Min","15Min","15Min","15Min"];
+  List<bool> _switchActives =[false,false,false,false,false,false,false,false,false];
+  FirebaseMessaging _fcm = FirebaseMessaging.instance;//Firebase Cloud Messaging
 
-  List<int> percentage = [3,3,3,3,3,3,3,3,3];
+  List<int> _percentage = [3,3,3,3,3,3,3,3,3];
   final _percentageOptions=[3,4,5];
-  NotificationState state = new NotificationState();
-  Box notificationBox;//Hive-box
+  NotificationState _notificationObject = new NotificationState(); //Object for notification variables
+  Box _notificationBox; //Hive-box
 
   @override
   void initState() {
-    notificationBox = Hive.box("notification"); //Hive-box for notification states
-    if(notificationBox.isNotEmpty){
-      for(var y=0;y<_switch.length;y++){
-       state= notificationBox.get(y) as NotificationState;
-       if(state!=null){
-         _switch[y]=state.switchState; //turns switches on
-         checkTime[y]=state.time; //right time saved by hive-box
-         percentage[y]=state.percentage.toInt();//right percentage saved by hive-box
+    _notificationBox = Hive.box("notification"); //Hive-box for notification states
+    if(_notificationBox.isNotEmpty){
+      for(var y=0;y<_switchActives.length;y++){
+       _notificationObject= _notificationBox.get(y) as NotificationState;
+       if(_notificationObject!=null){
+         _switchActives[y]=_notificationObject.switchState; //turns switches on
+         _checkTime[y]=_notificationObject.time; //right time saved by hive-box
+         _percentage[y]=_notificationObject.percentage.toInt();//right percentage saved by hive-box
        }
       }
     }
@@ -83,16 +82,16 @@ class _NotificationPageState extends State<NotificationPage> {
             Icon(Icons.access_alarm,color: Colors.grey),
             DropdownButton(
               dropdownColor: Colors.grey[700],
-              value: checkTime[index],
+              value: _checkTime[index],
               underline: SizedBox(), //makes the underline go away and sets a empty SizedBox below the time
               onChanged: (newValue) {
-                if(_switch[index]==false){
+                if(_switchActives[index]==false){
                   setState(() {
-                    checkTime[index] = newValue;
+                    _checkTime[index] = newValue;
                   });
                 }
               },
-              items: _action.map((item) {
+              items: _timeOptions.map((item) {
                 return DropdownMenuItem(
                     value: item,
                     child: Text(
@@ -105,12 +104,12 @@ class _NotificationPageState extends State<NotificationPage> {
               margin: EdgeInsets.only(left: 38),
               child: DropdownButton(
                 dropdownColor: Colors.grey[700],
-                value: percentage[index],
+                value: _percentage[index],
                 underline: SizedBox(), //makes the underline go away and sets a empty SizedBox below the percentage
                 onChanged: (newValue) {
-                  if(_switch[index]==false){
+                  if(_switchActives[index]==false){
                     setState(() {
-                      percentage[index] = newValue;
+                      _percentage[index] = newValue;
                     });
                   }
                 },
@@ -126,23 +125,23 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             Spacer(), //left space between dropdown menu and switch
             Switch(
-              value: _switch[index],
+              value: _switchActives[index],
               onChanged: (value) async {
                 setState(() {
-                  _switch[index]=value;
+                  _switchActives[index]=value;
                 });
-                if(_switch[index]==true){
-                  fcm.subscribeToTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%'); //subscribes to topic in firebase
+                if(_switchActives[index]==true){
+                  _fcm.subscribeToTopic(asset.toString()+_checkTime[index].toString()+_percentage[index].toString()+'%'); //subscribes to topic in firebase
                   final NotificationState newNotification = NotificationState( //creates new Notification model
-                      time: checkTime[index],
+                      time: _checkTime[index],
                       asset: asset,
-                      percentage: percentage[index].toDouble(),
-                      switchState: _switch[index]);
-                  notificationBox.put(index,newNotification); //saves notification model in hive-box and the right index
+                      percentage: _percentage[index].toDouble(),
+                      switchState: _switchActives[index]);
+                  _notificationBox.put(index,newNotification); //saves notification model in hive-box and the right index
                 }
                 else{
-                  fcm.unsubscribeFromTopic(asset.toString()+checkTime[index].toString()+percentage[index].toString()+'%'); //unsubscribes from topic
-                  await notificationBox.delete(index); //deletes the notification state at index
+                  _fcm.unsubscribeFromTopic(asset.toString()+_checkTime[index].toString()+_percentage[index].toString()+'%'); //unsubscribes from topic
+                  await _notificationBox.delete(index); //deletes the notification state at index
                 }
               },
               activeTrackColor: Colors.yellow, //Background switch Color when active

@@ -15,10 +15,10 @@ void main() async {
   Hive.registerAdapter(AssetBoxAdapter()); //Hive accepts model via adapter
   Hive.registerAdapter(NotificationStateAdapter()); //Hive accepts model via adapter
   Hive.init(document.path);//Hive saving path
-  await Hive.openBox("assets");
-  await Hive.openBox('currency');
-  await Hive.openBox('homepageData');
-  await Hive.openBox('notification');
+  await Hive.openBox("assets"); //Transactions
+  await Hive.openBox('fetchingCurrency'); //Dollar or Euro
+  await Hive.openBox('homepageData'); //Cached prices for Homepage
+  await Hive.openBox('notification'); //Notification states
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler); //Notification's handled in background
   runApp(MyApp());

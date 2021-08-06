@@ -1,12 +1,11 @@
 import 'package:crypto_app/models/assetbox.dart';
 import 'package:crypto_app/models/pricemodel.dart';
 import 'package:crypto_app/pages/assetpage.dart';
-import 'package:crypto_app/service/api_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:crypto_app/service/apiService.dart';
+import 'package:crypto_app/service/notificationService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto_app/constants/constant.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
 import 'package:hive/hive.dart';
 
@@ -17,110 +16,48 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  FirebaseMessaging messaging = FirebaseMessaging.instance; //Cloud Messaging
 
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-
-  Future<List<Pricemodel>> prices; //price list
+  Future<List<Pricemodel>> _prices; //price list
   ValueNotifier<double> _balance = ValueNotifier<double>(0); //Balance notifier
-  List<Pricemodel> balance = [];
-  final homepageData= Hive.box('homepageData'); //Hive box for cached prices
-  Timer timer; //timer for automatic 2min price refresh
-
-  void notificationPermission() async{
-    NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-
-    print('User granted permission: ${settings.authorizationStatus}');
-  }
-
-  void initMessaging(){
-    var androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    final IOSInitializationSettings iosInit = IOSInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false,
-    );
-
-    var initSetting = InitializationSettings(android: androidInit, iOS: iosInit);
-
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-    flutterLocalNotificationsPlugin.initialize(initSetting);
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      showNotification(message);//Notification message gets passed
-    });
-  }
-
-  void showNotification(RemoteMessage message) async{
-    RemoteNotification payload= message.notification;//notification data
-    var androidDetails =
-    AndroidNotificationDetails('1', 'channelName', 'channel Description');
-
-    var iosDetails = IOSNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-
-    var generalNotificationDetails =
-    NotificationDetails(android: androidDetails, iOS: iosDetails);
-
-    //Visible data from the Notification
-    await flutterLocalNotificationsPlugin.show(0,payload.title,payload.body, generalNotificationDetails,
-        payload: 'Notification');
-  }
-
-  void getToken() async{
-    print(await messaging.getToken());
-  }
-
+  List<Pricemodel> _transactionsForBalance = [];
+  Timer reloadTimer; //timer for automatic 2min price refresh
 
   @override
   void initState() {
     loadList(false).then((value) {  //takes prices from Hive
       value.forEach((element) {
-        balance.add(element);
+        _transactionsForBalance.add(element);
       });
-      getbalance(balance); //balance=Pricemodel
-      return balance;
+      getBalance(_transactionsForBalance); //balance=Pricemodel
+      return _transactionsForBalance;
     });
     _initializeTimer();
     super.initState();
 
-    notificationPermission();
-    initMessaging();
-    getToken();
+    NotificationService().notificationPermission();
+    NotificationService().initMessaging();
+    NotificationService().getToken();
   }
 
   Future loadList(bool refresh) async {//Check if $ or € prices has to be requested
-    final box = Hive.box('currency');
+    final box = Hive.box('fetchingCurrency');
     if (box.isEmpty) {
-      box.put('currency', 'USD');
+      box.put('fetchingCurrency', 'USD');
       Constant.currentCurrency="\$";
     }
     else if(box.isNotEmpty){
-      if(box.get('currency')=="USD"){
+      if(box.get('fetchingCurrency')=="USD"){
         Constant.currentCurrency="\$";
       }
       else{
         Constant.currentCurrency="€";
       }
     }
-      prices = Api_Service().getprices(refresh); //refresh==true means from api
+      _prices = ApiService().getprices(refresh); //refresh==true means from api
       setState(() {
-        prices = this.prices;
+        _prices = this._prices;
       });
-      return prices;
+      return _prices;
   }
 
   @override
@@ -153,7 +90,7 @@ class _HomePageState extends State<HomePage> {
           width: MediaQuery.of(context).size.width,
           height: 40,
           child: InkWell(
-            onTap: changecurrency,
+            onTap: changeCurrency,
             splashColor: Colors.transparent,
             child: ValueListenableBuilder( //Listens to _balance for updating in realtime
               valueListenable: _balance,
@@ -187,7 +124,7 @@ class _HomePageState extends State<HomePage> {
           child: RefreshIndicator( //pull down refresh functionality
             onRefresh: refresh,
             child: FutureBuilder(
-              future: prices,
+              future: _prices,
               builder: (context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {
                   final data = snapshot.data;
@@ -209,27 +146,27 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void changecurrency() { //Changes currency when clicking on balance
-    final box = Hive.box('currency');
-    if (box.get('currency') == 'USD') {
-      box.put('currency', 'EUR');
+  void changeCurrency() { //Changes currency when clicking on balance
+    final box = Hive.box('fetchingCurrency');
+    if (box.get('fetchingCurrency') == 'USD') {
+      box.put('fetchingCurrency', 'EUR');
       Constant.currentCurrency="€";
     } else {
-      box.put('currency', 'USD');
+      box.put('fetchingCurrency', 'USD');
       Constant.currentCurrency="\$";
     }
-    balance = []; //Transactions to calculate balance
+    _transactionsForBalance = []; //Transactions to calculate balance
     _balance.value = 0.0;
     loadList(true).then((value) { //Loading new price data
       value.forEach((element) {
-        balance.add(element);
+        _transactionsForBalance.add(element);
       });
-      getbalance(balance);
-      return balance;
+      getBalance(_transactionsForBalance);
+      return _transactionsForBalance;
     });
   }
 
-  ValueNotifier<double> getbalance(List<Pricemodel> data) { //Calculates Balance
+  ValueNotifier<double> getBalance(List<Pricemodel> data) { //Calculates Balance
     final box = Hive.box('assets');
     var temp;
     for (var i = 0; i < box.length; i++) { //each transaction
@@ -290,7 +227,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _initializeTimer(){ //2min Timer for price update
-    timer=Timer.periodic(const Duration(minutes: 2), (_) => loadList(true));
+    reloadTimer=Timer.periodic(const Duration(minutes: 2), (_) => loadList(true));
   }
 
 }

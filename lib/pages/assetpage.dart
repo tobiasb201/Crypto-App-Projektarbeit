@@ -1,6 +1,6 @@
 import 'package:crypto_app/models/assetstats.dart';
 import 'package:crypto_app/models/pricemodel.dart';
-import 'package:crypto_app/service/api_service.dart';
+import 'package:crypto_app/service/apiService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -19,18 +19,18 @@ class AssetPage extends StatefulWidget {
 }
 
 class _AssetPageState extends State<AssetPage> {
-  Future<AssetStats> stats; //statistics from api
-  List filteredTransactions; //Transactions from Hive
-  var icon;
-  String currency;
+  Future<AssetStats> _stats; //statistics from api
+  List _filteredTransactions; //Transactions from Hive
+  var _icon;
+  String _currency;
 
   @override
   void initState() {
-    stats = Api_Service().getstats(widget.asset.data.base); //Selected asset stats
+    _stats = ApiService().getstats(widget.asset.data.base); //Selected asset stats
     Box transactions = Hive.box('assets');//Transaction hive-box
-    currency=Constant.currentCurrency; //gets current selected currency
-    filteredTransactions=transactions.values.where((element) => element.asset==widget.asset.data.base).toList(); //selected asset transactions
-    icon=widget.asset.data.base; //IconName
+    _currency=Constant.currentCurrency; //gets current selected currency
+    _filteredTransactions=transactions.values.where((element) => element.asset==widget.asset.data.base).toList(); //selected asset transactions
+    _icon=widget.asset.data.base; //IconName
     super.initState();
   }
 
@@ -54,7 +54,7 @@ class _AssetPageState extends State<AssetPage> {
                         Row(
                           children: <Widget>[
                             Spacer(),
-                            Image.asset('assets/$icon.png'),
+                            Image.asset('assets/$_icon.png'),
                             Text(widget.asset.data.base, //Selected name from homepage
                               textAlign: TextAlign.center,
                               style: TextStyle(height: 1, fontSize: 50,color: Colors.white),),
@@ -69,7 +69,7 @@ class _AssetPageState extends State<AssetPage> {
               ),
               Container(
                   child: FutureBuilder<AssetStats>( //FutureBuilder for statistics
-                      future: stats,
+                      future: _stats,
                       builder: (context, AsyncSnapshot snapshot) {
                         if (snapshot.hasData) {
                           AssetStats info = snapshot.data;
@@ -82,11 +82,11 @@ class _AssetPageState extends State<AssetPage> {
                   )
               ),
               Center(child: FittedBox(child: Text("Transactions:",style: TextStyle(color: Colors.amber[600], fontSize: 20)))),
-              transactionLength(filteredTransactions),//Checks transaction length
+              transactionLength(_filteredTransactions),//Checks transaction length
               Expanded(
-                child: ListView.builder(itemCount:filteredTransactions.length,shrinkWrap:true,itemBuilder: (context,index) {
-                  final transaction = filteredTransactions[index] as AssetBox; //Each Transactions going trough the function
-                  return transactionlist(transaction);
+                child: ListView.builder(itemCount:_filteredTransactions.length,shrinkWrap:true,itemBuilder: (context,index) {
+                  final transaction = _filteredTransactions[index] as AssetBox; //Each Transactions going trough the function
+                  return transactionList(transaction);
                 }),
               ),
             ],
@@ -111,7 +111,7 @@ class _AssetPageState extends State<AssetPage> {
                   Text("24h Volumen:",style: TextStyle(color: Colors.white),),
                   SizedBox(height: 10),
                   Center( //FittedBox is responsive
-                    child: FittedBox(child: Text(getvolume(info)+""+currency,textAlign: TextAlign.center, style: TextStyle(color:Colors.white,fontSize: 30),))
+                    child: FittedBox(child: Text(getvolume(info)+""+_currency,textAlign: TextAlign.center, style: TextStyle(color:Colors.white,fontSize: 30),))
                   ),
                 ],
               )
@@ -124,7 +124,7 @@ class _AssetPageState extends State<AssetPage> {
                   Text("Price:",style: TextStyle(color: Colors.white),),
                   SizedBox(height: 10),
                   Center(
-                      child: FittedBox(child: Text(info.last+""+currency, textAlign: TextAlign.center, style: TextStyle(color:Colors.white,fontSize: 30),))
+                      child: FittedBox(child: Text(info.last+""+_currency, textAlign: TextAlign.center, style: TextStyle(color:Colors.white,fontSize: 30),))
                   ),
                 ],
               )
@@ -150,7 +150,7 @@ class _AssetPageState extends State<AssetPage> {
                   Text("Balance:",style: TextStyle(color: Colors.white),),
                   SizedBox(height: 10),
                   Center(
-                      child: FittedBox(child: Text(balance(info.last).toStringAsFixed(2)+""+currency, style: TextStyle(fontSize: 30, color:Colors.white),))
+                      child: FittedBox(child: Text(balance(info.last).toStringAsFixed(2)+""+_currency, style: TextStyle(fontSize: 30, color:Colors.white),))
                   )
                 ],
               )
@@ -165,7 +165,7 @@ class _AssetPageState extends State<AssetPage> {
     return balance;
   }
 
-  ListTile transactionlist(AssetBox transaction){
+  ListTile transactionList(AssetBox transaction){
     return ListTile(
       title: Text(
         transaction.asset,
@@ -178,7 +178,7 @@ class _AssetPageState extends State<AssetPage> {
       trailing: FittedBox(
         child: Column(
           children: [
-            actioncolor(transaction.action),
+            actionColor(transaction.action),
             SizedBox(height: 10),
             calculatePriceDifference(transaction.price, widget.asset.data.amount)
           ],
@@ -197,7 +197,7 @@ class _AssetPageState extends State<AssetPage> {
   }
 
 
-  Text actioncolor(String action) { //Selects Color for each transaction
+  Text actionColor(String action) { //Selects Color for each transaction
     if (action == "Buy") {
       return Text(
         action,

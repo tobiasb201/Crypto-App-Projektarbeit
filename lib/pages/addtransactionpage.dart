@@ -12,31 +12,31 @@ class AddTransactionPage extends StatefulWidget {
 }
 
 class _AddTransactionPageState extends State<AddTransactionPage> {
-  String asset = "BTC"; //Selected Asset
-  final _assets = Constant.currencies; //All choosable Assets
-  String action = "Buy"; //Selected Action
-  final _actions = ["Buy", "Sell"];
-  final formKey = GlobalKey<FormState>(); //
+  String _asset = "BTC"; //Selected Asset
+  final _assetOptions = Constant.currencies; //All choosable Assets
+  String _orderOption = "Buy"; //Selected Action
+  final _orderOptions = ["Buy", "Sell"];
+  final _formKey = GlobalKey<FormState>(); //
   String _price;
   String _amount;
   String _date;
 
-  var textController = TextEditingController(); //Edit Textfield's
+  var _textController = TextEditingController(); //Edit Textfield's
 
-  Box assetBox; //TransactionBox(Hive)
+  Box _assetBox; //Transaction Box(Hive)
 
   @override
   void initState() {
     super.initState();
-    assetBox = Hive.box("assets"); //Box name
+    _assetBox = Hive.box("assets"); //Box name
   }
 
-  void buyorsell(){ //Adds + or - to the Tnputfield wether its a buy or sell action
-    if(action=="Buy"){
-      textController.value=textController.value.copyWith(text: "+");
+  void checkOrderStatus(){ //Adds + or - to the Tnputfield wether its a buy or sell action
+    if(_orderOption=="Buy"){
+      _textController.value=_textController.value.copyWith(text: "+");
     }
-    if(action=="Sell"){
-      textController.value=textController.value.copyWith(text: "-");
+    if(_orderOption=="Sell"){
+      _textController.value=_textController.value.copyWith(text: "-");
     }
   }
 
@@ -52,11 +52,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           child: Padding(
               padding: EdgeInsets.only(left: 20, right: 20),
               child: Form(
-                key: formKey,
+                key: _formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Container( //Contrainer for Headline
+                    Container( //Container for Headline
                       width: MediaQuery.of(context).size.width/1.6, //Fixed width depending on device
                       margin: EdgeInsets.only(top: 10),
                       decoration: BoxDecoration(
@@ -78,13 +78,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         children: <Widget>[
                           DropdownButton(
                             dropdownColor: Colors.grey[700],
-                            value: asset,
+                            value: _asset,
                             onChanged: (newValue) {
                               setState(() {
-                                asset = newValue;
+                                _asset = newValue;
                               });
                             },
-                            items: _assets.map((item) {
+                            items: _assetOptions.map((item) {
                               return DropdownMenuItem(
                                   value: item,
                                   child: Text(
@@ -96,14 +96,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           Spacer(),
                           DropdownButton(
                             dropdownColor: Colors.grey[700],
-                            value: action,
+                            value: _orderOption,
                             onChanged: (newValue) {
                               setState(() {
-                                action = newValue;
+                                _orderOption = newValue;
                               });
-                              buyorsell(); //Checks option selected, to prefill textfield
+                              checkOrderStatus(); //Checks option selected, to prefill textfield
                             },
-                            items: _actions.map((item) {
+                            items: _orderOptions.map((item) {
                               return DropdownMenuItem(
                                   value: item,
                                   child: Text(
@@ -135,15 +135,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                             backgroundColor: MaterialStateProperty.all<Color>(
                                 Colors.amber[600])),
                         onPressed: () {
-                          if (formKey.currentState.validate()) { //Validates if textfields are filled
-                            formKey.currentState.save(); //Saves state of textfields
+                          if (_formKey.currentState.validate()) { //Validates if textfields are filled
+                            _formKey.currentState.save(); //Saves state of textfields
                             final AssetBox newTransaction = AssetBox( //New Transaction
-                                action: action,
+                                action: _orderOption,
                                 amount: _amount,
-                                asset: asset,
+                                asset: _asset,
                                 date: _date,
                                 price: _price);
-                            assetBox.add(newTransaction); //Adds data to hive-box
+                            _assetBox.add(newTransaction); //Adds data to hive-box
                             ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text("Added new Transaction",style: TextStyle(color: Colors.amber[600]),), behavior: SnackBarBehavior.floating,)
                             );//Snackbar shows if transaction has been created
@@ -197,7 +197,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         hintStyle: TextStyle(color: Colors.white38),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      controller: textController, //textcontroller variable for editing
+      controller: _textController, //textcontroller variable for editing
       // ignore: missing_return
       validator: (value) {
         if (value.trim().isEmpty) {

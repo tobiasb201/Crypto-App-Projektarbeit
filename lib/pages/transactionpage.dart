@@ -62,13 +62,13 @@ class _TransactionPageState extends State<TransactionPage> {
     // ignore: deprecated_member_use
     return WatchBoxBuilder( //When transaction gets added Builder automatically updates
       box: Hive.box('assets'), //transactions
-      builder: (context, assetbox) {
+      builder: (context, assetBox) {
         return ListView.separated(
           separatorBuilder: (context,index)=>Divider(color: Colors.grey[700],),
             shrinkWrap: true,
-            itemCount: assetbox.length, //Length of all transactions
+            itemCount: assetBox.length, //Length of all transactions
             itemBuilder: (context, index) {
-              final asset = assetbox.getAt(index) as AssetBox;
+              final asset = assetBox.getAt(index) as AssetBox;
               return Container(
                 decoration: BoxDecoration(//Box styling
                     border: Border.all(color: Colors.black),
@@ -90,11 +90,11 @@ class _TransactionPageState extends State<TransactionPage> {
                       asset.amount.toString(),style: TextStyle(color:Colors.amber[400]),),
                   trailing:
                   Row(mainAxisSize: MainAxisSize.min, children: <Widget>[ //min Icon and action size for responsiveness
-                    actioncolor(asset.action),
+                    actionColor(asset.action),
                     IconButton(
                       icon: Icon(Icons.delete),
                       onPressed: () async { //deletes Transaction
-                        await assetbox.deleteAt(index);
+                        await assetBox.deleteAt(index);
                       },
                     )
                   ]),
@@ -114,7 +114,7 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 
-  Text actioncolor(String action) {  //Different Color for Buy,Sell
+  Text actionColor(String action) {  //Different Color for Buy,Sell
     if (action == "Buy") {
       return Text(
         action,
