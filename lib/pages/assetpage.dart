@@ -1,6 +1,6 @@
 import 'package:crypto_app/models/assetstats.dart';
 import 'package:crypto_app/models/pricemodel.dart';
-import 'package:crypto_app/service/apiService.dart';
+import 'package:crypto_app/service/api_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';

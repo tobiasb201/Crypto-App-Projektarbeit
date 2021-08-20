@@ -1,8 +1,8 @@
 import 'package:crypto_app/models/assetbox.dart';
 import 'package:crypto_app/models/pricemodel.dart';
 import 'package:crypto_app/pages/assetpage.dart';
-import 'package:crypto_app/service/apiService.dart';
-import 'package:crypto_app/service/notificationService.dart';
+import 'package:crypto_app/service/api_service.dart';
+import 'package:crypto_app/service/notification_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto_app/constants/constant.dart';
