@@ -67,7 +67,7 @@ class _AssetPageState extends State<AssetPage> {
                   )
                 ),
               ),
-              Container(
+              Expanded(
                   child: FutureBuilder<AssetStats>( //FutureBuilder for statistics
                       future: _stats,
                       builder: (context, AsyncSnapshot snapshot) {
